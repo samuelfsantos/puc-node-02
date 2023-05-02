@@ -1,21 +1,26 @@
-let Produtos = require('../models/produto.model.js');
+const Knex = require('../models/produto.model.js');
 
 
 // Recupera todos os Produtos da lista
 exports.findAll = (req, res) => {
-    res.json(Produtos)
+    knex.select('*').from('produtos')
+    .then (produtos => res.status(200).json(produtos))
+    .catch (err => res.status(500).json ({ message: `Erro ao recuperar produtos: ${err.message}` }))
 };
 
 
 // Encontra um produto pelo Id
 exports.findOne = (req, res) => {
-    let produto = Produtos.find(x => Number(x.id) === Number(req.params.id));
-    if(!produto) {
-        return res.status(400).send({
-            message: "Produto não encontrado com id " + req.params.id
-        });
-    }
-    res.json(produto);
+    knex.select().from('produtos').where('id', Number(req.params.id)).first()
+    .then (produto => {
+        if(!produto) {
+            res.status(400).json({ message: `Produto não encontrado com id: ${req.params.id}` })
+        }
+        else{
+            res.status(200).json(produto)
+        }
+    })
+    .catch (err => res.status(500).json ({ message: `Erro ao recuperar produto: ${err.message}` }))
 };
 
 
@@ -38,21 +43,18 @@ exports.create = (req, res) => {
         });
     }
     // Cria um novo Produto
-    const ultimoId = Produtos.reduce(
-        (max, prod) => (prod.id > max ? prod.id : max), Produtos[0].id
-      );
-    const produto = {
-        id: ultimoId + 1,
+    const produtoReq = {
         descricao: req.body.descricao,
         valor: req.body.valor,
         marca: req.body.marca
     };
-    // Salva o produto na lista
-    Produtos.push(produto);
-    // Retorna msg de sucesso
-    return res.send({
-        message: "Produto criado com sucesso!"
-    });
+
+    knex('produtos').insert(produtoReq, ['id'])
+        .then (produto => {
+        let id = produto[0].id
+        res.json({ message: `Produto inserido com sucesso. Id:`, id  })
+    })
+    .catch (err => res.json ({ message: `Erro ao inserir produto: ${err.message}` }))
 };
 
 
@@ -74,40 +76,45 @@ exports.update = (req, res) => {
             message: "A 'marca' do produto não pode estar vazia!"
         });
     }
-    // Validando se o produto existe
-    let produto = Produtos.find(x => Number(x.id) === Number(req.params.id));
-    if(!produto) {
-        return res.status(400).send({
-            message: "Produto não encontrado com id " + req.params.id
-        });
-    }
-    //Atualizando as propriedades do produto
-    let indice = Produtos.findIndex(x => Number(x.id) === Number(req.params.id));
-    produto.descricao = req.body.descricao;
-    produto.valor = req.body.valor;
-    produto.marca = req.body.marca;
-    Produtos[indice] = produto;
-    // Retorna msg de sucesso
-    return res.send({
-        message: "Produto atualizado com sucesso!"
-    });
+
+    knex.select().from('produtos').where('id', Number(req.params.id)).first()
+    .then (produtoReq => {
+        if(!produtoReq) {
+            // Validando se o produto existe
+            res.status(400).json({ message: `Produto não encontrado com id: ${req.params.id}` })
+        }
+        else{
+            //Atualizando o produto
+            produtoReq.descricao = req.body.descricao;
+            produtoReq.valor = req.body.valor;
+            produtoReq.marca = req.body.marca;
+            knex('produtos').update(produtoReq)
+                .then (produto => {
+                res.json({ message: `Produto ${produto.id} atualizado com sucesso.`  })
+            })
+            .catch (err => res.json ({ message: `Erro ao atualizar produto: ${err.message}` }))
+        }
+    })
+    .catch (err => res.status(500).json ({ message: `Erro ao recuperar produto: ${err.message}` }))
 };
 
 
 // Exclui um produto identificado pelo id
 exports.delete = (req, res) => {
-    // Validando se o produto existe
-    let produto = Produtos.find(x => Number(x.id) === Number(req.params.id));
-    if(!produto) {
-        return res.status(400).send({
-            message: "Produto não encontrado com id " + req.params.id
-        });
-    }
-    // Exclusão do produto pelo id
-    let indice = Produtos.findIndex(x => Number(x.id) === Number(req.params.id));
-    Produtos.splice(indice, 1);
-    // Retorna msg de sucesso
-    return res.send({
-        message: "Produto excluído com sucesso!"
-    });
+    knex.select().from('produtos').where('id', Number(req.params.id)).first()
+    .then (produtoReq => {
+        if(!produtoReq) {
+            // Validando se o produto existe
+            res.status(400).json({ message: `Produto não encontrado com id: ${req.params.id}` })
+        }
+        else{
+            //Excluindo o produto
+            knex('produtos').delete(produtoReq)
+                .then (produto => {
+                res.json({ message: `Produto ${produto.id} excluído com sucesso.`  })
+            })
+            .catch (err => res.json ({ message: `Erro ao excluir produto: ${err.message}` }))
+        }
+    })
+    .catch (err => res.status(500).json ({ message: `Erro ao recuperar produto: ${err.message}` }))
 };
