@@ -1,9 +1,9 @@
-const Knex = require('../models/produto.model.js');
+let Knex = require('../models/produto.model.js');
 
 
 // Recupera todos os Produtos da lista
 exports.findAll = (req, res) => {
-    knex.select('*').from('produtos')
+    Knex.select('*').from('produtos')
     .then (produtos => res.status(200).json(produtos))
     .catch (err => res.status(500).json ({ message: `Erro ao recuperar produtos: ${err.message}` }))
 };
@@ -11,7 +11,7 @@ exports.findAll = (req, res) => {
 
 // Encontra um produto pelo Id
 exports.findOne = (req, res) => {
-    knex.select().from('produtos').where('id', Number(req.params.id)).first()
+    Knex.select().from('produtos').where('id', Number(req.params.id)).first()
     .then (produto => {
         if(!produto) {
             res.status(400).json({ message: `Produto não encontrado com id: ${req.params.id}` })
@@ -49,7 +49,7 @@ exports.create = (req, res) => {
         marca: req.body.marca
     };
 
-    knex('produtos').insert(produtoReq, ['id'])
+    Knex('produtos').insert(produtoReq, ['id'])
         .then (produto => {
         let id = produto[0].id
         res.json({ message: `Produto inserido com sucesso. Id:`, id  })
