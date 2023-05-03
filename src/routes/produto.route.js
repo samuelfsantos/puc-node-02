@@ -2,6 +2,9 @@
     const express = require("express");
     const app = express.Router();
 
+    app.use (express.urlencoded({ extended: true }))
+    app.use (express.json())
+
     const produtos = require('../controllers/produto.controller.js');
 
     // Recupera todos os Produtos
