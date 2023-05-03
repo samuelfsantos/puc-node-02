@@ -12,4 +12,5 @@ COPY . .
 # Abre a porta 3001 e executa o comando para iniciar a aplicação
 EXPOSE 3001
 
+#CMD [ "node", "index.js" ]
 CMD ["npm", "start"]

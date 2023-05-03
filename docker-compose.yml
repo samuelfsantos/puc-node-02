@@ -1,26 +1,27 @@
 # Compose para nuvem digital ocean
-#version: "3"
-#services:
-#  api-node-02:
-#    image: registry.digitalocean.com/dcr-samuel/puc-node-api-02:${TAG}
-#    container_name: puc-node-api-02
-#    build: 
-#      context: .
-#      dockerfile: ./Dockerfile
-#      args:
-#        - TAG=${TAG}
-#    ports:
-#      - "3001:3001"
-
-
-# Compose para LOCALHOST
 version: "3"
 services:
   api-node-02:
-    image: puc-node-api-2
-    container_name: puc-node-api-2
-    build: .
-    expose:
-      - "3001"
+    image: registry.digitalocean.com/dcr-samuel/puc-node-api-02:${TAG}
+    container_name: puc-node-api-02
+    build: 
+      context: .
+      dockerfile: ./Dockerfile
+      args:
+        - TAG=${TAG}
     ports:
       - "3001:3001"
+
+
+# Compose para LOCALHOST
+#version: "3"
+#services:
+#  api-node-02:
+#    image: puc-node-api-2
+#    container_name: puc-node-api-2
+#    build: .
+#    command: "npm run start"
+#    expose:
+#      - "3001"
+#    ports:
+#      - "3001:3001"
