@@ -52,7 +52,7 @@ exports.create = (req, res) => {
     Db('produtos').insert(produtoReq, ['id'])
         .then (produto => {
         let id = produto[0].id
-        res.status(200).json({ message: `Produto inserido com sucesso. Id:`, id  })
+        res.status(200).json({ message: `Produto inserido com sucesso.`, id  })
     })
     .catch (err => res.status(500).json ({ message: `Erro ao inserir produto: ${err.message}` }))
 };
