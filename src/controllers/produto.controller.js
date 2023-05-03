@@ -1,9 +1,9 @@
-let Knex = require('../models/produto.model.js');
+const Db = require('../models/produto.model.js');
 
 
 // Recupera todos os Produtos da lista
 exports.findAll = (req, res) => {
-    Knex.select('*').from('produtos')
+    Db('produtos')
     .then (produtos => res.status(200).json(produtos))
     .catch (err => res.status(500).json ({ message: `Erro ao recuperar produtos: ${err.message}` }))
 };
@@ -11,7 +11,7 @@ exports.findAll = (req, res) => {
 
 // Encontra um produto pelo Id
 exports.findOne = (req, res) => {
-    Knex.select().from('produtos').where('id', Number(req.params.id)).first()
+    Db('produtos').where('id', Number(req.params.id)).first()
     .then (produto => {
         if(!produto) {
             res.status(400).json({ message: `Produto não encontrado com id: ${req.params.id}` })
@@ -49,12 +49,12 @@ exports.create = (req, res) => {
         marca: req.body.marca
     };
 
-    Knex('produtos').insert(produtoReq, ['id'])
+    Db('produtos').insert(produtoReq, ['id'])
         .then (produto => {
         let id = produto[0].id
-        res.json({ message: `Produto inserido com sucesso. Id:`, id  })
+        res.status(200).json({ message: `Produto inserido com sucesso. Id:`, id  })
     })
-    .catch (err => res.json ({ message: `Erro ao inserir produto: ${err.message}` }))
+    .catch (err => res.status(500).json ({ message: `Erro ao inserir produto: ${err.message}` }))
 };
 
 
@@ -77,7 +77,7 @@ exports.update = (req, res) => {
         });
     }
 
-    knex.select().from('produtos').where('id', Number(req.params.id)).first()
+    Db('produtos').where('id', Number(req.params.id)).first()
     .then (produtoReq => {
         if(!produtoReq) {
             // Validando se o produto existe
@@ -88,11 +88,11 @@ exports.update = (req, res) => {
             produtoReq.descricao = req.body.descricao;
             produtoReq.valor = req.body.valor;
             produtoReq.marca = req.body.marca;
-            knex('produtos').update(produtoReq)
-                .then (produto => {
-                res.json({ message: `Produto ${produto.id} atualizado com sucesso.`  })
+            Db('produtos').where('id', Number(produtoReq.id)).update(produtoReq)
+                .then(retorno => {
+                res.status(200).json({ message: `Produto ${produtoReq.id} atualizado com sucesso.`  })
             })
-            .catch (err => res.json ({ message: `Erro ao atualizar produto: ${err.message}` }))
+            .catch (err => res.status(500).json ({ message: `Erro ao atualizar produto: ${err.message}` }))
         }
     })
     .catch (err => res.status(500).json ({ message: `Erro ao recuperar produto: ${err.message}` }))
@@ -101,7 +101,7 @@ exports.update = (req, res) => {
 
 // Exclui um produto identificado pelo id
 exports.delete = (req, res) => {
-    knex.select().from('produtos').where('id', Number(req.params.id)).first()
+    Db('produtos').where('id', Number(req.params.id)).first()
     .then (produtoReq => {
         if(!produtoReq) {
             // Validando se o produto existe
@@ -109,11 +109,11 @@ exports.delete = (req, res) => {
         }
         else{
             //Excluindo o produto
-            knex('produtos').delete(produtoReq)
-                .then (produto => {
-                res.json({ message: `Produto ${produto.id} excluído com sucesso.`  })
+            Db('produtos').where('id', Number(produtoReq.id)).delete()
+                .then (retorno => {
+                res.status(200).json({ message: `Produto ${produtoReq.id} excluído com sucesso.`  })
             })
-            .catch (err => res.json ({ message: `Erro ao excluir produto: ${err.message}` }))
+            .catch (err => res.status(500).json ({ message: `Erro ao excluir produto: ${err.message}` }))
         }
     })
     .catch (err => res.status(500).json ({ message: `Erro ao recuperar produto: ${err.message}` }))

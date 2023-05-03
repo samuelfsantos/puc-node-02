@@ -14,7 +14,7 @@ const v1 = require('./src/routes/produto.route.js');
 server.use('/api/v1/', v1);
 
 server.use (function (req, res) {
-    res.status(404).send ('Recurso não encontrado.')
+    res.status(404).send('Recurso não encontrado.')
   })
 server.listen(3001, () => {
     console.log('Servidor está funcionando..')
